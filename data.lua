@@ -1,0 +1,5 @@
+require("__graftorio3__/scripts/constants")
+require("__graftorio3__/prototypes/items")
+require("__graftorio3__/prototypes/entities")
+require("__graftorio3__/prototypes/recipes")
+require("__graftorio3__/prototypes/technologies")

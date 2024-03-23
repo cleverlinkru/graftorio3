@@ -1,0 +1,12 @@
+data/grafana/*
+data/prometheus/*
+!data/grafana/.gitkeep
+!data/prometheus/.gitkeep
+*.zip
+*tar.xz
+pkg/*.zip
+.DS_store
+pkg/
+.idea
+.env
+script-output

@@ -1,0 +1,254 @@
+version: '3'
+services:
+
+  exporter:
+    image: prom/node-exporter
+    ports:
+      - 9100:9100
+
+  prometheus:
+    image: prom/prometheus
+    network_mode: 'host'
+    volumes:
+      - ./data/prometheus:/prometheus
+      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana
+    network_mode: 'host'
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    volumes:
+      - ./data/grafana:/var/lib/grafana
+      - ./config/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
+      - ./config/grafana/dashboard.yml:/etc/grafana/provisioning/dashboards/dashboard.yml
+      - ./config/grafana/dashboards/:/var/lib/grafana/dashboards/
+      - ./config/grafana/grafana.ini:/etc/grafana/grafana.ini
+
+  nginx:
+    image: nginx:latest
+    network_mode: 'host'
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - .:/var/www/html
+    depends_on:
+      - php
+
+  php:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    image: php:fpm
+    network_mode: 'host'
+    volumes:
+      - .:/var/www/html
+
+  timer:
+    build:
+      context: ./docker/timer
+      dockerfile: Dockerfile
+    image: alpine
+    network_mode: 'host'
+    depends_on:
+      - nginx
+      - php
+
+  game:
+    image: gezp/ubuntu-desktop:20.04-cu11.0.3
+    ports:
+      - '14000:4000'
+      - '${GAME_PORT_0_0}:34197'
+      - '${OUTPUT_PORT_0_0}:9100'
+      - '${RCON_PORT_0_0}:25575'
+    volumes:
+      - .:/tmp/graftorio3
+      - ./data/game/saves/game-0-0.zip:/tmp/game.zip
+    environment:
+      - 'PASSWORD=ubuntu'
+      - 'GAME_NAME=game-0-0'
+      - 'GAME_PWD=${GAME_PWD}'
+      - 'RCON_PWD=${RCON_PWD}'
+    privileged: true
+    cap_add:
+      - 'SYS_PTRACE'
+    shm_size: '1024m'
+    command: nvidia-smi
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+
+  game.0.0:
+    build:
+      context: ./docker/game
+      dockerfile: Dockerfile
+    command: ['/bin/bash', '-c', 'sleep infinity']
+    entrypoint: /tmp/graftorio3/docker/game/entrypoint.sh
+    privileged: true
+    ports:
+      - '${GAME_PORT_0_0}:34197/udp'
+      - '${OUTPUT_PORT_0_0}:9100'
+      - '${RCON_PORT_0_0}:25575'
+    volumes:
+      - .:/tmp/graftorio3
+      - ./data/game/saves/game.0.0.zip:/tmp/game.zip
+    environment:
+      - 'GAME_NAME=game.0.0'
+      - 'GAME_PWD=${GAME_PWD}'
+      - 'RCON_PWD=${RCON_PWD}'
+
+  game.1.0:
+    build:
+      context: ./docker/game
+      dockerfile: Dockerfile
+    command: ['/bin/bash', '-c', 'sleep infinity']
+    entrypoint: /tmp/graftorio3/docker/game/entrypoint.sh
+    privileged: true
+    ports:
+      - '${GAME_PORT_1_0}:34197/udp'
+      - '${OUTPUT_PORT_1_0}:9100'
+      - '${RCON_PORT_1_0}:25575'
+    volumes:
+      - .:/tmp/graftorio3
+      - ./data/game/saves/game.1.0.zip:/tmp/game.zip
+    environment:
+      - 'GAME_NAME=game.1.0'
+      - 'GAME_PWD=${GAME_PWD}'
+      - 'RCON_PWD=${RCON_PWD}'
+
+  game.m1.0:
+    build:
+      context: ./docker/game
+      dockerfile: Dockerfile
+    command: ['/bin/bash', '-c', 'sleep infinity']
+    entrypoint: /tmp/graftorio3/docker/game/entrypoint.sh
+    privileged: true
+    ports:
+      - '${GAME_PORT_m1_0}:34197/udp'
+      - '${OUTPUT_PORT_m1_0}:9100'
+      - '${RCON_PORT_m1_0}:25575'
+    volumes:
+      - .:/tmp/graftorio3
+      - ./data/game/saves/game.m1.0.zip:/tmp/game.zip
+    environment:
+      - 'GAME_NAME=game.m1.0'
+      - 'GAME_PWD=${GAME_PWD}'
+      - 'RCON_PWD=${RCON_PWD}'
+
+  game.0.1:
+    build:
+      context: ./docker/game
+      dockerfile: Dockerfile
+    command: ['/bin/bash', '-c', 'sleep infinity']
+    entrypoint: /tmp/graftorio3/docker/game/entrypoint.sh
+    privileged: true
+    ports:
+      - '${GAME_PORT_0_1}:34197/udp'
+      - '${OUTPUT_PORT_0_1}:9100'
+      - '${RCON_PORT_0_1}:25575'
+    volumes:
+      - .:/tmp/graftorio3
+      - ./data/game/saves/game.0.1.zip:/tmp/game.zip
+    environment:
+      - 'GAME_NAME=game.0.1'
+      - 'GAME_PWD=${GAME_PWD}'
+      - 'RCON_PWD=${RCON_PWD}'
+
+  game.0.m1:
+    build:
+      context: ./docker/game
+      dockerfile: Dockerfile
+    command: ['/bin/bash', '-c', 'sleep infinity']
+    entrypoint: /tmp/graftorio3/docker/game/entrypoint.sh
+    privileged: true
+    ports:
+      - '${GAME_PORT_0_m1}:34197/udp'
+      - '${OUTPUT_PORT_0_m1}:9100'
+      - '${RCON_PORT_0_m1}:25575'
+    volumes:
+      - .:/tmp/graftorio3
+      - ./data/game/saves/game.0.m1.zip:/tmp/game.zip
+    environment:
+      - 'GAME_NAME=game.0.m1'
+      - 'GAME_PWD=${GAME_PWD}'
+      - 'RCON_PWD=${RCON_PWD}'
+
+  game.1.1:
+    build:
+      context: ./docker/game
+      dockerfile: Dockerfile
+    command: ['/bin/bash', '-c', 'sleep infinity']
+    entrypoint: /tmp/graftorio3/docker/game/entrypoint.sh
+    privileged: true
+    ports:
+      - '${GAME_PORT_1_1}:34197/udp'
+      - '${OUTPUT_PORT_1_1}:9100'
+      - '${RCON_PORT_1_1}:25575'
+    volumes:
+      - .:/tmp/graftorio3
+      - ./data/game/saves/game.1.1.zip:/tmp/game.zip
+    environment:
+      - 'GAME_NAME=game.1.1'
+      - 'GAME_PWD=${GAME_PWD}'
+      - 'RCON_PWD=${RCON_PWD}'
+
+  game.m1.1:
+    build:
+      context: ./docker/game
+      dockerfile: Dockerfile
+    command: ['/bin/bash', '-c', 'sleep infinity']
+    entrypoint: /tmp/graftorio3/docker/game/entrypoint.sh
+    privileged: true
+    ports:
+      - '${GAME_PORT_m1_1}:34197/udp'
+      - '${OUTPUT_PORT_m1_1}:9100'
+      - '${RCON_PORT_m1_1}:25575'
+    volumes:
+      - .:/tmp/graftorio3
+      - ./data/game/saves/game.m1.1.zip:/tmp/game.zip
+    environment:
+      - 'GAME_NAME=game.m1.1'
+      - 'GAME_PWD=${GAME_PWD}'
+      - 'RCON_PWD=${RCON_PWD}'
+
+  game.1.m1:
+    build:
+      context: ./docker/game
+      dockerfile: Dockerfile
+    command: ['/bin/bash', '-c', 'sleep infinity']
+    entrypoint: /tmp/graftorio3/docker/game/entrypoint.sh
+    privileged: true
+    ports:
+      - '${GAME_PORT_1_m1}:34197/udp'
+      - '${OUTPUT_PORT_1_m1}:9100'
+      - '${RCON_PORT_1_m1}:25575'
+    volumes:
+      - .:/tmp/graftorio3
+      - ./data/game/saves/game.1.m1.zip:/tmp/game.zip
+    environment:
+      - 'GAME_NAME=game.1.m1'
+      - 'GAME_PWD=${GAME_PWD}'
+      - 'RCON_PWD=${RCON_PWD}'
+
+  game.m1.m1:
+    build:
+      context: ./docker/game
+      dockerfile: Dockerfile
+    command: ['/bin/bash', '-c', 'sleep infinity']
+    entrypoint: /tmp/graftorio3/docker/game/entrypoint.sh
+    privileged: true
+    ports:
+      - '${GAME_PORT_m1_m1}:34197/udp'
+      - '${OUTPUT_PORT_m1_m1}:9100'
+      - '${RCON_PORT_m1_m1}:25575'
+    volumes:
+      - .:/tmp/graftorio3
+      - ./data/game/saves/game.m1.m1.zip:/tmp/game.zip
+    environment:
+      - 'GAME_NAME=game.m1.m1'
+      - 'GAME_PWD=${GAME_PWD}'
+      - 'RCON_PWD=${RCON_PWD}'

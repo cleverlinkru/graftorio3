@@ -1,0 +1,9 @@
+apiVersion: 1
+
+datasources:
+  - name: prometheus
+    type: prometheus
+    isDefault: true
+    url: http://92.63.192.95:9090
+    jsonData:
+      timeInterval: '1s'

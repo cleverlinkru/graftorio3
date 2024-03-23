@@ -1,0 +1,14 @@
+{
+  "name": "graftorio3",
+  "version": "0.0.1",
+  "title": "graftorio3",
+  "author": "EduardAlexChernov",
+  "description": "visualize metrics from your factorio game in grafana",
+  "homepage": "https://github.com/cleverlinkru/graftorio3",
+  "dependencies": [
+    "base >= 1.1",
+    "flib >= 0.12.0",
+    "? YARM >= 0.8.207"
+  ],
+  "factorio_version": "1.1"
+}
